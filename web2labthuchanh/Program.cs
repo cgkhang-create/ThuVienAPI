@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using web2labthuchanh.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,7 +10,10 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
-
+// Register DB Context
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(connectionString));
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
