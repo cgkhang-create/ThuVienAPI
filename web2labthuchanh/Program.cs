@@ -1,26 +1,35 @@
 using Microsoft.EntityFrameworkCore;
 using web2labthuchanh.Data;
+using web2labthuchanh.Repositories;
+using Wweb2labthuchanh.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
+// Add services
 builder.Services.AddControllers();
 
-// OpenAPI
-builder.Services.AddOpenApi();
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-// Register DB Context
+// Connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+// DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// Repository
+builder.Services.AddScoped<IBookRepository, SQLBookRepository>();
+builder.Services.AddScoped<IAuthorRepository, SQLAuthorRepository>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Swagger
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
