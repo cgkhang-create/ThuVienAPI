@@ -71,8 +71,9 @@ namespace web2labthuchanh
             builder.Services.AddDbContext<AppDbContext>(
                 options =>
                     options.UseSqlServer(connectionString));
-
             
+            builder.Services.AddHttpContextAccessor();
+
             builder.Services.AddScoped<
                 IBookRepository,
                 SQLBookRepository>();
@@ -88,8 +89,10 @@ namespace web2labthuchanh
             builder.Services.AddScoped<
                 ITokenRepository,
                 TokenRepository>();
+            builder.Services.AddScoped<
+                IImageRepository,
+                LocalImageRepository>();
 
-            
             var bookAuthConnection =
                 builder.Configuration.GetConnectionString(
                     "BookAuthConnection");
@@ -181,10 +184,13 @@ namespace web2labthuchanh
             
 
             app.UseHttpsRedirection();
+            
+            app.UseStaticFiles();
 
             app.UseAuthentication();
 
             app.UseAuthorization();
+
 
             app.MapControllers();
 
