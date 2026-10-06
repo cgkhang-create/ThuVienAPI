@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using web2labthuchanh.Data;
 using web2labthuchanh.Models.DTO;
 using web2labthuchanh.Repositories;
@@ -11,67 +12,62 @@ namespace web2labthuchanh.Controllers
     {
         private readonly AppDbContext _dbContext;
         private readonly IAuthorRepository _authorRepository;
-
-        public AuthorsController(
-            AppDbContext dbContext,
-            IAuthorRepository authorRepository)
+        public AuthorsController(AppDbContext dbContext, IAuthorRepository authorRepository)
         {
             _dbContext = dbContext;
             _authorRepository = authorRepository;
         }
 
-        // GET: /api/Authors/get-all-author
+        [Authorize(Roles = "Read")]
         [HttpGet("get-all-author")]
-        public IActionResult GetAllAuthor()
+        public IActionResult GetAllAuthor([FromQuery] string? filterOn, [FromQuery] string? filterQuery,
+             [FromQuery] string? sortBy, [FromQuery] bool isAscending,
+             [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 100)
         {
-            // Sử dụng Repository Pattern
-            var allAuthors = _authorRepository.GetAllAuthors();
-
+            var allAuthors = _authorRepository.GellAllAuthors(filterOn, filterQuery, sortBy, isAscending, pageNumber, pageSize);
             return Ok(allAuthors);
         }
 
-        // GET: /api/Authors/get-author-by-id/1
-        [HttpGet]
-        [Route("get-author-by-id/{id}")]
-        public IActionResult GetAuthorById([FromRoute] int id)
-        {
-            var authorWithId =
-                _authorRepository.GetAuthorById(id);
 
+        [Authorize(Roles = "Read")]
+        [HttpGet("get-author-by-id/{id}")]
+        public IActionResult GetAuthorById(int id)
+        {
+            var authorWithId = _authorRepository.GetAuthorById(id);
             return Ok(authorWithId);
         }
 
-        // POST: /api/Authors/add-author
+        [Authorize(Roles = "Write")]
         [HttpPost("add-author")]
-        public IActionResult AddAuthors(
-            [FromBody] AddAuthorRequestDTO addAuthorRequestDTO)
+        public IActionResult AddAuthors([FromBody] AddAuthorRequestDTO addAuthorRequestDTO)
         {
-            var authorAdd =
-                _authorRepository.AddAuthor(addAuthorRequestDTO);
-
-            return Ok(authorAdd);
+            var authorAdd = _authorRepository.AddAuthor(addAuthorRequestDTO);
+            return Ok();
         }
 
-        // PUT: /api/Authors/update-author-by-id/1
+        [Authorize(Roles = "Write")]
         [HttpPut("update-author-by-id/{id}")]
-        public IActionResult UpdateAuthorById(
-            int id,
-            [FromBody] AuthorNoIdDTO authorDTO)
+        public IActionResult UpdateBookById(int id, [FromBody] AuthorNoIdDTO authorDTO)
         {
-            var authorUpdate =
-                _authorRepository.UpdateAuthorById(id, authorDTO);
-
+            var authorUpdate = _authorRepository.UpdateAuthorById(id, authorDTO);
             return Ok(authorUpdate);
         }
 
-        // DELETE: /api/Authors/delete-author-by-id/1
+        [Authorize(Roles = "Write")]
         [HttpDelete("delete-author-by-id/{id}")]
         public IActionResult DeleteBookById(int id)
         {
-            var authorDelete =
-                _authorRepository.DeleteAuthorById(id);
-
-            return Ok(authorDelete);
+            var authorDelete = _authorRepository.DeleteAuthorById(id);
+            return Ok();
         }
+
+        [Authorize(Roles = "Read")]
+        [HttpGet("{id}/books")]
+        public IActionResult GetBooksByAuthorId(int id)
+        {
+            var booksOfAuthor = _authorRepository.GetBooksByAuthorId(id);
+            return Ok(booksOfAuthor);
+        }
+
     }
 }

@@ -1,7 +1,11 @@
-﻿namespace web2labthuchanh.Models.DTO
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace web2labthuchanh.Models.DTO
 {
     public class AddAuthorRequestDTO
     {
-        public string FullName { get; set; }
+        [Required]
+        [MinLength(3)]
+        public string FullName { set; get; }
     }
 }
